@@ -1,4 +1,10 @@
 <p align="center">
+  <b>Добавил подобие Dynamic Link между FilmCraft и EffectCraft</b>
+  Ниже официальный Readme
+</p>
+
+
+<p align="center">
   <a href="https://getartcraft.com/">
     <picture>
       <source media="(prefers-color-scheme: dark)" srcset="docs/brand/artcraft-logo-white.svg">
