@@ -1,6 +1,6 @@
 <p align="center">
   <b>Добавил подобие Dynamic Link между FilmCraft и EffectCraft</b>
-  Ниже официальный Readme
+  <p>Ниже официальный Readme</p>
 </p>
 
 
