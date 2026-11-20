@@ -3,7 +3,7 @@
   
 <h3>Первичная настройка (Обязательно)</h3>
 <p>В Edit->Preference->General->Dynamic Link указать путь до приложения Afect craft</p>
-<p>Для работы Dynamic Link у вас обязательно должен быть установлен Afect craft моей версии</p>
+<p>Для работы Dynamic Link у вас обязательно должен быть установлен Afect craft моей версии https://github.com/romamaslov200/effectcraft-main</p>
 
 <p align="center">Ниже официальный Readme</p>
 </p>
