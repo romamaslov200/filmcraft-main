@@ -1,0 +1,17 @@
+[package]
+name = "filmcraft-dynamic-link"
+description = "Dynamic Link model for FilmCraft: a live reference to a comp/sequence in another Craft app"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+base64 = "0.22"
+log = { workspace = true }
