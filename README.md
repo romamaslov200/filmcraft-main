@@ -1,6 +1,11 @@
 <p align="center">
   <b>Добавил подобие Dynamic Link между FilmCraft и EffectCraft</b>
-  <p align="center">Ниже официальный Readme</p>
+  
+<h3>Первичная настройка (Обязательно)</h3>
+<p>В Edit->Preference->General->Dynamic Link указать путь до приложения Afect craft</p>
+<p>Для работы Dynamic Link у вас обязательно должен быть установлен Afect craft моей версии</p>
+
+<p align="center">Ниже официальный Readme</p>
 </p>
 
 
