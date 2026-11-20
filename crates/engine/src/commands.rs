@@ -1929,6 +1929,15 @@ fn build() -> Vec<CommandSpec> {
             Ok(out)
         }),
         cmd!(
+            "item.editInEffectCraft",
+            "Open Composition in EffectCraft",
+            ["Project"],
+            None,
+            r#"{"item":itemId}"#,
+            always,
+            item_edit_in_effectcraft
+        ),
+        cmd!(
             "file.importDynamicLink",
             "Import Dynamic Link…",
             [],
@@ -1936,6 +1945,15 @@ fn build() -> Vec<CommandSpec> {
             r#"{"app":"effectcraft|filmcraft|photocraft","item":str,"project":str?,"port":u16,"bin":binId?}"#,
             always,
             import_dynamic_link
+        ),
+        cmd!(
+            "clip.editInEffectCraft",
+            "Open Composition in EffectCraft",
+            ["Clip", "Replace With Clip"],
+            None,
+            r#"{}"#,
+            selection_is_link,
+            edit_in_effectcraft
         ),
         cmd!(
             "clip.replaceWithEffectCraftComp",
@@ -5343,6 +5361,54 @@ fn import_dynamic_link(s: &mut Session, p: &Value) -> Result<Value> {
 /// composition and comes back as a Dynamic Link item that replaces the clip. With `path` the
 /// EffectCraft project is saved there first, so the link names a file and survives a restart of
 /// either app; without it the link points at whatever the project is called in EffectCraft.
+/// The link a clip's media is, when it is one: the target names the app, the port, the project and
+/// the composition.
+fn clip_link(s: &Session, clip: filmcraft_project::ClipId) -> Option<filmcraft_dynamic_link::LinkTarget> {
+    let (_, it) = s.active_sequence()?.find_item(clip)?;
+    item_link(s, it.item)
+}
+
+/// The link an item is, when it is one.
+fn item_link(s: &Session, item: filmcraft_project::ItemId) -> Option<filmcraft_dynamic_link::LinkTarget> {
+    match &s.project.item(item)?.kind {
+        ItemKind::Media(m) => match &m.media {
+            MediaRef::DynamicLink(t) => Some(t.clone()),
+            _ => None,
+        },
+        _ => None,
+    }
+}
+
+/// Enabled when the selection holds a linked composition: "Open Composition in EffectCraft" is
+/// only of use there.
+fn selection_is_link(s: &Session) -> std::result::Result<(), String> {
+    if s.state.selection.iter().any(|c| clip_link(s, *c).is_some()) {
+        Ok(())
+    } else {
+        Err("select a Dynamic Link composition".to_owned())
+    }
+}
+
+/// Opens the composition's own EffectCraft window — the copy the user edits — on the link's
+/// project, as Edit Original does. The control channel stays on, so the linked preview follows the
+/// edits made there. Without a window there is nothing to edit, and the service is asked to close.
+fn edit_in_effectcraft(s: &mut Session, p: &Value) -> Result<Value> {
+    const CMD: &str = "clip.editInEffectCraft";
+    let clips = clips_p(s, p);
+    let target = clips.iter().find_map(|c| clip_link(s, *c)).ok_or_else(|| bad(CMD, "the clip is not a Dynamic Link composition"))?;
+    filmcraft_dynamic_link::launch::open_window(&target).map_err(|e| bad(CMD, &e.to_string()))?;
+    Ok(json!({"app": target.app.id(), "project": target.project}))
+}
+
+/// The same for a project panel item.
+fn item_edit_in_effectcraft(s: &mut Session, p: &Value) -> Result<Value> {
+    const CMD: &str = "item.editInEffectCraft";
+    let item = u64_p(p, "item").ok_or_else(|| bad(CMD, "need `item`"))?;
+    let target = item_link(s, filmcraft_project::ItemId(item)).ok_or_else(|| bad(CMD, "the item is not a Dynamic Link composition"))?;
+    filmcraft_dynamic_link::launch::open_window(&target).map_err(|e| bad(CMD, &e.to_string()))?;
+    Ok(json!({"app": target.app.id(), "project": target.project}))
+}
+
 /// A clip that already links to EffectCraft is left alone, so a second call changes nothing.
 /// EffectCraft must be running with its control channel on `general.effectCraftPort`.
 fn replace_with_effectcraft_comp(s: &mut Session, p: &Value) -> Result<Value> {

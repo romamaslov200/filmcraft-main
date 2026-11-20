@@ -1367,6 +1367,8 @@ pub(super) fn interact(app: &mut FilmcraftApp, ui: &mut egui::Ui, seq: &Sequence
             let picked: Vec<&filmcraft_project::TrackItem> = sel.iter().filter_map(|c| seq.find_item(*c).map(|(_, it)| it)).collect();
             let all_enabled = !picked.is_empty() && picked.iter().all(|it| it.enabled);
             let linked = picked.iter().any(|it| it.link.is_some());
+            // Only a clip that links to another app's composition can be opened there.
+            let opens_in_effectcraft = picked.iter().any(|it| is_link_media(app, it.item));
             let mut first = true;
             for group in CLIP_MENU {
                 if !std::mem::take(&mut first) {
@@ -1396,6 +1398,9 @@ pub(super) fn interact(app: &mut FilmcraftApp, ui: &mut egui::Ui, seq: &Sequence
                     }
                     if cmd == "clip.multicam" {
                         multicam_menu(app, ui, &picked);
+                        continue;
+                    }
+                    if cmd == "clip.editInEffectCraft" && !opens_in_effectcraft {
                         continue;
                     }
                     let label = match cmd {
@@ -1429,6 +1434,12 @@ pub(super) fn interact(app: &mut FilmcraftApp, ui: &mut egui::Ui, seq: &Sequence
     drop_targets(app, ui, seq, layout);
 
     app.auto.add("timeline.tracks", layout.content, "tracks");
+}
+
+/// Whether an item's pixels come from another app's composition (a Dynamic Link), which is what
+/// "Open Composition in EffectCraft" is for.
+fn is_link_media(app: &FilmcraftApp, media: filmcraft_project::ItemId) -> bool {
+    matches!(app.session.project.item(media).map(|i| &i.kind), Some(filmcraft_project::ItemKind::Media(m)) if matches!(m.media, filmcraft_project::MediaRef::DynamicLink(_)))
 }
 
 #[cfg(test)]

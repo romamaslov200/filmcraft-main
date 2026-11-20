@@ -42,6 +42,7 @@ pub(crate) const CLIP_MENU: &[&[(&str, &str)]] = &[
     ],
     &[
         ("Edit Original", "edit.editOriginal"),
+        ("Open Composition in EffectCraft", "clip.editInEffectCraft"),
         ("Replace With Clip From Source Monitor", "clip.replaceFromSource"),
         ("Replace With EffectCraft Composition…", "clip.replaceWithEffectCraftComp"),
     ],

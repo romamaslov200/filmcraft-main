@@ -293,6 +293,15 @@ fn item_menu(app: &mut FilmcraftApp, ui: &mut egui::Ui, id: ItemId, kind: &ItemK
         actions.push(("source.open".into(), json!({"item": id.0})));
         ui.close();
     }
+    // A composition living in EffectCraft is edited there, in the app's own window: the same
+    // "open it" action a linked clip has in the timeline menu.
+    if let ItemKind::Media(m) = kind
+        && matches!(m.media, filmcraft_project::MediaRef::DynamicLink(_))
+        && ui.button(tl!("Open Composition in EffectCraft")).clicked()
+    {
+        actions.push(("item.editInEffectCraft".into(), json!({"item": id.0})));
+        ui.close();
+    }
     if matches!(kind, ItemKind::Sequence(_)) && ui.button(tl!("Open in Timeline")).clicked() {
         actions.push(("sequence.open".into(), json!({"item": id.0})));
         ui.close();
